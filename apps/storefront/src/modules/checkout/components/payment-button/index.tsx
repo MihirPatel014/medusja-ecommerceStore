@@ -7,6 +7,7 @@ import { Button } from "@modules/common/components/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+import { trackPaymentStarted, trackPaymentFailed } from "@lib/analytics/events"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -37,7 +38,11 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     case isManual(paymentSession?.provider_id):
       return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
+        <ManualTestPaymentButton 
+          notReady={notReady} 
+          cart={cart}
+          data-testid={dataTestId} 
+        />
       )
     default:
       return <Button disabled>Select a payment method</Button>
@@ -84,6 +89,13 @@ const StripePaymentButton = ({
       return
     }
 
+    trackPaymentStarted({
+      cart_id: cart.id,
+      payment_provider: session?.provider_id ?? "stripe",
+      currency_code: cart.currency_code,
+      value: cart.total,
+    })
+
     await stripe
       .confirmCardPayment(session?.data.client_secret as string, {
         payment_method: {
@@ -109,6 +121,13 @@ const StripePaymentButton = ({
       .then(({ error, paymentIntent }) => {
         if (error) {
           const pi = error.payment_intent
+
+          trackPaymentFailed({
+            cart_id: cart.id,
+            payment_provider: session?.provider_id ?? "stripe",
+            error_code: error.code,
+            error_message: error.message,
+          })
 
           if (
             (pi && pi.status === "requires_capture") ||
@@ -151,7 +170,13 @@ const StripePaymentButton = ({
   )
 }
 
-const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
+const ManualTestPaymentButton = ({ 
+  cart,
+  notReady 
+}: { 
+  cart: HttpTypes.StoreCart
+  notReady: boolean 
+}) => {
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -167,6 +192,13 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
 
   const handlePayment = () => {
     setSubmitting(true)
+
+    trackPaymentStarted({
+      cart_id: cart.id,
+      payment_provider: "manual",
+      currency_code: cart.currency_code,
+      value: cart.total,
+    })
 
     onPaymentCompleted()
   }

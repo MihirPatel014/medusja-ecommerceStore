@@ -11,6 +11,7 @@ import MedusaRadio from "@modules/common/components/radio"
 import { Button, clx, Heading, Text } from "@modules/common/components/ui"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
+import { trackShippingSelected } from "@lib/analytics/events"
 
 const PICKUP_OPTION_ON = "__PICKUP_ON"
 const PICKUP_OPTION_OFF = "__PICKUP_OFF"
@@ -137,6 +138,14 @@ const Shipping: React.FC<ShippingProps> = ({
     })
 
     await setShippingMethod({ cartId: cart.id, shippingMethodId: id })
+      .then(() => {
+        const method = availableShippingMethods?.find((m) => m.id === id)
+        trackShippingSelected({
+          cart_id: cart.id,
+          shipping_option_id: id,
+          shipping_method_name: method?.name,
+        })
+      })
       .catch((err) => {
         setShippingMethodId(currentId)
 

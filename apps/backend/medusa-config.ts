@@ -1,8 +1,10 @@
-import { loadEnv, defineConfig } from '@medusajs/framework/utils'
+import { loadEnv, defineConfig } from "@medusajs/framework/utils"
+import { logger } from "./src/utils/medusa-logger.js"
 
-loadEnv(process.env.NODE_ENV || 'development', process.cwd())
+loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
-module.exports = defineConfig({
+export default defineConfig({
+  logger,
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {

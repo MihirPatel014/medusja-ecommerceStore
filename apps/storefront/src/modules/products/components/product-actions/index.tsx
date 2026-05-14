@@ -14,6 +14,7 @@ import MobileActions from "./mobile-actions"
 import { useRouter } from "next/navigation"
 import { Plus, Minus } from "@medusajs/icons"
 import { IconButton, Text } from "@modules/common/components/ui"
+import { trackAddToCart } from "@lib/analytics/events"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -133,6 +134,12 @@ export default function ProductActions({
       variantId: selectedVariant.id,
       quantity: quantity,
       countryCode,
+    })
+
+    trackAddToCart({
+      product_id: product.id!,
+      variant_id: selectedVariant.id,
+      quantity: quantity,
     })
 
     setIsAdding(false)

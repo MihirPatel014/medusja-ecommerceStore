@@ -5,7 +5,7 @@ import {
 } from "@medusajs/framework/types"
 import nodemailer from "nodemailer"
 import { render } from "@react-email/render"
-import { PasswordResetEmail } from "./templates/password-reset"
+import { PasswordResetEmail } from "./templates/password-reset.js"
 import React from "react"
 
 interface EmailNotificationConfig {
@@ -20,10 +20,12 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
   static identifier = "email-notification"
   protected transporter: nodemailer.Transporter
   protected config: EmailNotificationConfig
+  protected logger: any
 
-  constructor({}, options: EmailNotificationConfig) {
+  constructor({ logger }: { logger: any }, options: EmailNotificationConfig) {
     super()
     this.config = options
+    this.logger = logger
     this.transporter = nodemailer.createTransport({
       host: options.host,
       port: options.port,
@@ -38,7 +40,11 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
   async send(
     notification: ProviderSendNotificationDTO
   ): Promise<ProviderSendNotificationResultsDTO> {
-    console.log("EmailModule: Sending notification", notification)
+    this.logger.info("email_notification_sending", { 
+      to: notification.to, 
+      template: notification.template 
+    })
+
     if (!notification) {
       throw new Error("No notification provided")
     }
@@ -60,7 +66,10 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
             })
           )
         } catch (renderError) {
-          console.error("EmailModule: React render failed, using fallback template", renderError)
+          this.logger.warn("email_react_render_failed", {
+            error: renderError instanceof Error ? renderError.message : renderError,
+            template
+          })
           // Fallback to simple HTML if React render fails due to version conflicts
           const reset_url = (data as any)?.reset_url
           html = `
@@ -85,10 +94,16 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
         subject,
         html,
       })
-      console.log("EmailModule: Mail sent successfully", info.messageId)
+      this.logger.info("email_sent_successfully", { 
+        message_id: info.messageId,
+        template 
+      })
       return { id: info.messageId }
     } catch (error) {
-      console.error("EmailModule: Failed to send mail", error)
+      this.logger.error("email_send_failed", error as Error, {
+        template,
+        to
+      })
       throw error
     }
   }

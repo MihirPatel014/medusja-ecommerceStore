@@ -1,11 +1,11 @@
 import { AbstractNotificationProviderService } from "@medusajs/framework/utils"
-import { 
-  ProviderSendNotificationDTO, 
-  ProviderSendNotificationResultsDTO 
+import {
+  ProviderSendNotificationDTO,
+  ProviderSendNotificationResultsDTO
 } from "@medusajs/framework/types"
 import nodemailer from "nodemailer"
 import { render } from "@react-email/render"
-import { PasswordResetEmail } from "./templates/password-reset.js"
+import { PasswordResetEmail } from "./templates/password-reset"
 import React from "react"
 
 interface EmailNotificationConfig {
@@ -40,9 +40,9 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
   async send(
     notification: ProviderSendNotificationDTO
   ): Promise<ProviderSendNotificationResultsDTO> {
-    this.logger.info("email_notification_sending", { 
-      to: notification.to, 
-      template: notification.template 
+    this.logger.info("email_notification_sending", {
+      to: notification.to,
+      template: notification.template
     })
 
     if (!notification) {
@@ -94,9 +94,9 @@ class EmailNotificationProviderService extends AbstractNotificationProviderServi
         subject,
         html,
       })
-      this.logger.info("email_sent_successfully", { 
+      this.logger.info("email_sent_successfully", {
         message_id: info.messageId,
-        template 
+        template
       })
       return { id: info.messageId }
     } catch (error) {

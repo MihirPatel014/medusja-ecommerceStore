@@ -1,5 +1,5 @@
 import { loadEnv, defineConfig } from "@medusajs/framework/utils"
-import { logger } from "./src/utils/medusa-logger.js"
+import { logger } from "./src/utils/medusa-logger"
 
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 

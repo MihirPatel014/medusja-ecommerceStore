@@ -1,7 +1,6 @@
 {
   "name": "@dtc/backend",
   "version": "0.0.1",
-  "type": "module",
   "description": "A starter for Medusa projects.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
@@ -53,6 +52,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.22.0",
     "typescript": "^5.6.2",
     "vite": "^5.4.14",
     "yalc": "^1.0.0-pre.53"

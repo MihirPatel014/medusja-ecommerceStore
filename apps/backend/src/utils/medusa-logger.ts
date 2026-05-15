@@ -1,5 +1,5 @@
 import type { Logger } from "@medusajs/framework/types"
-import { loggerverse } from "./loggerverse.js"
+import { loggerverse } from "./loggerverse"
 
 type Meta = Record<string, unknown>
 
